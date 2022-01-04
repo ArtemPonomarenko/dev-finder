@@ -1,133 +1,92 @@
 $(document).ready(function () {
   "use strict";
   //ALL ELEMENTS
-  const search_input = document.getElementById("search");
-  const search_btn = document.getElementById("search-btn");
-  const name = document.getElementById("name");
-  const nickname = document.getElementById("nickname");
-  const date = document.getElementById("date");
+  const search_input = $("#search");
+  const search_btn = $("#search-btn");
+  const name = $("#name");
+  const nickname = $("#nickname");
+  const date = $("#date");
   const avatar = $("#avatar");
-  const toggle = document.getElementById("toggle");
-  const description = document.getElementById("description");
-  const repos_amount = document.getElementById("repos-amount");
-  const followers_amount = document.getElementById("followers-amount");
-  const following_amount = document.getElementById("following-amount");
-  const city = document.getElementById("city");
-  const blog = document.getElementById("blog");
-  const twitter = document.getElementById("twitter");
-  const work = document.getElementById("work");
+  const toggle = $("#toggle");
+  const description = $("#description");
+  const repos_amount = $("#repos-amount");
+  const followers_amount = $("#followers-amount");
+  const following_amount = $("#following-amount");
+  const city = $("#city");
+  const blog = $("#blog");
+  const twitter = $("#twitter");
+  const work = $("#work");
 
   //Load the page with Octocat account loaded
-  $.getJSON("https://api.github.com/users/octocat123445", function (result) {
+  $.getJSON("https://api.github.com/users/octocat", function (result) {
     if (!result) {
       showError();
     } else {
       update_display(result);
     }
-
     //Load the page with preferred color scheme
     let matched = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
     if (matched) {
       $("body").removeClass("light-theme");
-      console.log("Currently in dark mode");
     } else {
       $("body").addClass("light-theme");
-      console.log("Currently not in dark mode");
     }
   });
-
   //Dark/light mode toggle function
   //Done through simple "dark mode " class to the body
-  toggle.addEventListener("click", function (e) {
+  toggle.click(function (e) {
     $("body").toggleClass("light-theme");
   });
-
-  //get the search information
-  search_btn.addEventListener("click", function (e) {
-    let github_id = $.trim(search_input.value);
+  //Get JSON from Github function
+  function search_info(e) {
+    let github_id = $.trim(search_input.val());
     const Url = `https://api.github.com/users/${github_id}`;
-    if (!github_id) {
-      showError();
-    } else {
-      $.getJSON(Url, function (result) {
-        update_display(result);
-      }).fail(function (jqXHR, textStatus, errorThrown) {
+    if (e.type === "click" || e.which === 13) {
+      if (!github_id) {
         showError();
-      });
+      } else {
+        $.getJSON(Url, function (result) {
+          console.log(result);
+          update_display(result);
+        }).fail(function () {
+          showError();
+        });
+      }
     }
-  });
-  function makeTwitterLink(str) {
-    let link;
-    if (!str) {
-      link = `<a id="twitter" class="not-available">Not available</a>`;
-      return link;
-    }
-    link = `<a href="https://twitter.com/${str}"> @${str}</a>`;
-    return link;
   }
-  function makeWorkLink(str) {
-    let link;
-    if (!str) {
-      link = `<a id="github" class="not-available">Not available</a>`;
-      return link;
-    }
-    link = `<a href="https://github.com/${str.slice(1)}"> @${str}</a>`;
-    return link;
-  }
-  //Make a link function
-  function makeLink(str) {
-    let link;
-    if (!str) {
-      link = `<a id="blog" class="not-available">Not available</a>`;
-      return link;
-    }
-    link = `<a href="${str}"> ${str.slice(8)} </a>`;
-    return link;
-  }
-  //Account hasnt been found function
-  function showError() {
-    $("#error").css("display", "block");
-  }
+
+  //Get info from github on click and Enter button
+  search_btn.click(search_info);
+  $(document).on("keydown", search_info);
+
   //Refresh function
   function refresh() {
-    //Empty all outputs and remove anavailable styling
+    //Empty all outputs and remove not-available styling, otherwise they stack-up
     $("#error").css("display", "none");
-    nickname.innerText = "";
-    search_input.value = "";
-
-    name.innerText = "";
-    name.classList.remove("not-available");
-
-    description.innerText = "";
-    description.classList.remove("not-available");
-
-    city.innerText = "";
-    city.classList.remove("not-available");
-
-    date.innerText = "";
-    date.classList.remove("not-available");
-
-    repos_amount.innerText = "";
-    repos_amount.classList.remove("not-available");
-
-    followers_amount.innerText = "";
-    followers_amount.classList.remove("not-available");
-
-    following_amount.innerText = "";
-    following_amount.classList.remove("not-available");
-
-    work.innerText = "";
-    work.classList.remove("not-available");
-
-    twitter.innerText = "";
-    twitter.classList.remove("not-available");
-
-    blog.innerText = "";
-    blog.classList.remove("not-available");
+    nickname.text("");
+    search_input.val("");
+    name.text("");
+    name.removeClass("not-available");
+    description.text("");
+    description.removeClass("not-available");
+    city.text("");
+    city.removeClass("not-available");
+    date.text("");
+    date.removeClass("not-available");
+    repos_amount.text("");
+    repos_amount.removeClass("not-available");
+    followers_amount.text("");
+    followers_amount.removeClass("not-available");
+    following_amount.text("");
+    following_amount.removeClass("not-available");
+    work.text("");
+    work.removeClass("not-available");
+    twitter.text("");
+    twitter.removeClass("not-available");
+    blog.text("");
+    blog.removeClass("not-available");
   }
-  //Append function
-  function toAppend(where, what, sms, login, link) {
+  function toAppend(where, what, sms, login) {
     //If there is no data - show Not Available
     let av = "not-available";
     let appendix = sms || "Not Available";
@@ -137,9 +96,6 @@ $(document).ready(function () {
       // Format date to readable format
     } else if (where == date) {
       let d = new Date(what);
-
-      // mydate.toDateString().split(' ').slice(1).join(' ')
-
       appendix = `Joined ${d.toDateString().split(" ").slice(1).join(" ")}`;
       // If there is not Name show login
     } else if (where == name && what == null) {
@@ -153,19 +109,42 @@ $(document).ready(function () {
       av = "available";
     } else {
       //  Add styling of not available info
-      where.classList.add(`${av}`);
+      where.addClass(`${av}`);
     }
     where.append(appendix);
   }
+
+  //Create a different link based on passed flag
+  function makeLink(str, flag) {
+    //If there is no information - show "Not available"
+    let link = `<a class="not-available">Not available</a>`;
+    if (!str) {
+      return link;
+    } else if (flag === "twitter") {
+      //Link on twitter page
+      link = `<a href="https://twitter.com/${str}" target="_blank"> @${str}</a>`;
+    } else if (flag === "blog") {
+      //Link on website, don't show "https://"
+      link = `<a href="${str}" target="_blank"> ${str.slice(8)} </a>`;
+    } else if (flag === "company") {
+      // Link on github page, remove "@" for the link
+      link = `<a href="https://github.com/${str.slice(
+        1
+      )}" target="_blank"> ${str}</a>`;
+    }
+    return link;
+  }
+
+  //Show error function
+  function showError() {
+    $("#error").css("display", "block");
+  }
+
+  //Append function
   function update_display(data) {
     refresh();
     //Change avatar
-    let blog2 = makeLink(data.blog);
-    let twitter2 = makeTwitterLink(data.twitter_username);
-    let work2 = makeWorkLink(data.company);
-
     avatar.attr("src", data.avatar_url);
-
     toAppend(name, data.name, "Not Available", data.login);
     toAppend(nickname, data.login);
     toAppend(date, data.created_at);
@@ -174,11 +153,16 @@ $(document).ready(function () {
     toAppend(followers_amount, data.followers);
     toAppend(following_amount, data.following);
     toAppend(city, data.location);
-    // toAppend(blog, data.blog);
-    // toAppend(twitter, data.twitter_username);
-    // toAppend(work, data.company);
-    $("#twitter").html(twitter2);
-    $("#blog").html(blog2);
-    $("#work").html(work2);
+
+    let blog_flag = "blog";
+    let twitter_flag = "twitter";
+    let company_flag = "company";
+    let blog_link = makeLink(data.blog, blog_flag);
+    let twitter_link = makeLink(data.twitter_username, twitter_flag);
+    let work_link = makeLink(data.company, company_flag);
+
+    twitter.html(twitter_link);
+    blog.html(blog_link);
+    work.html(work_link);
   }
 });
