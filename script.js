@@ -128,7 +128,7 @@ $(document).ready(function () {
       link = `<a href="${str}" target="_blank"> ${str.slice(8)} </a>`;
     } else if (flag === "company") {
       // Link on github page, remove "@" for the link
-      if (str.slice(1) === "@") {
+      if (str.slice(0, 1) === "@") {
         link = `<a href="https://github.com/${str.slice(
           1
         )} "target="_blank"> ${str} </a>`;
